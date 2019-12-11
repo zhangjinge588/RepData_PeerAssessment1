@@ -1,22 +1,87 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
+title: 'Reproducible Research: Peer Assessment 1'
+output:
   html_document:
-    keep_md: true
+    keep_md: yes
+  pdf_document: default
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, cache = TRUE)
+```
+
+## Setting your current working directory. 
+### (For Peer-reviewers: please kindly configure your working directory.)
+```{r Setwd}
+setwd("~/Desktop/JZForPractice/coursera/RepData_PeerAssessment1")
+```
 
 ## Loading and preprocessing the data
+### 1. Code for reading in the dataset and/or processing the data
+```{r 1}
+data <- read.csv("activity.csv")
+data$steps <- as.numeric(data$steps)
+data$interval <- as.numeric(data$interval)
 
+```
 
 
 ## What is mean total number of steps taken per day?
 
+### 2. Histogram of the total number of steps taken each day
+```{r 2}
+library(dplyr)
+
+# Calculate the total number of steps taken per day, ignoring missing values.
+daily_steps <- data %>% group_by(date) %>% summarize(sum_steps = sum(steps, na.rm=TRUE))
+
+# Plot the histogram
+hist(daily_steps$sum_steps, 
+     main = "Histogram of Total Number of Steps Taken per Day", 
+     xlab = "Total Numer of Step Taken per Day")
+
+```
+
+### 3. Mean and median number of steps taken each day
+```{r 3}
+# Calculate and report the mean and median of the total number of steps taken per day
+mean_total_number_of_steps_taken_per_day <- format(mean(daily_steps$sum_steps, na.rm=TRUE), scientific = FALSE)
+median_toal_number_of_steps_taken_per_day <- format(median(daily_steps$sum_steps, na.rm=TRUE), scientific=FALSE)
+
+print (paste("mean: ", mean_total_number_of_steps_taken_per_day))
+print (paste("median: ", median_toal_number_of_steps_taken_per_day))
+
+```
+The mean   is ```r mean_total_number_of_steps_taken_per_day```.
+The median is ```r median_toal_number_of_steps_taken_per_day```.
 
 
 ## What is the average daily activity pattern?
 
+### 4. Time series plot of the average number of steps taken
+```{r 4}
+library(dplyr)
 
+# Calculate the total number of steps taken per interval, ignoring missing values.
+daily_average_steps <- data %>% group_by(interval) %>% summarize(mean_steps = mean(steps, na.rm=TRUE))
+
+# Make a time series plot (i.e. type="l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+plot(daily_average_steps$interval, 
+     daily_average_steps$mean_steps, 
+     type="l", 
+     main = "Time Series on Average Number of Steps Taken Vs. 5-minute Interval",
+     xlab = "Interval",
+     ylab = "Average Number of Steps Taken")
+
+```
+
+### 5. The 5-minute interval that, on average, contains the maximum number of steps
+```{r 5}
+interval_with_max_average_number_of_steps <- daily_average_steps[order(daily_average_steps$mean_steps, decreasing = TRUE)[1], "interval"][[1]]
+print (interval_with_max_average_number_of_steps)
+```
+
+The 5-minute interval [```r interval_with_max_average_number_of_steps```, ```r (interval_with_max_average_number_of_steps + 5) ```), on average across all the days in the dataset, contains the maximum number of steps.
 
 ## Imputing missing values
 
